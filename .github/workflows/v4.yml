@@ -1,0 +1,42 @@
+name: V4 更新IP列表
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # 每6小时自动运行一次
+  workflow_dispatch:         # 允许手动触发
+  push:                     # 代码推送时触发
+
+jobs:
+  update-ip-list:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3  # 检出仓库
+      with:
+        fetch-depth: 0  # 获取完整历史记录，避免强制推送问题
+      
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4
+        
+    - name: 运行IPv4收集脚本
+      run: python ${{ github.workspace }}/v4_collect_ips.py
+        
+    - name: 提交变更并强制推送
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        if [ -n "$(git status --porcelain)" ]; then
+          git add v4_ip.txt v4_ip_only.txt
+          git commit -m "自动更新IPv4列表"
+          git pull origin main --rebase  # 尝试变基合并
+          git push origin main --force  # 强制推送
+        else
+          echo "没有检测到变更，跳过提交。"
+        fi
