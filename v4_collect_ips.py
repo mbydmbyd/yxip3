@@ -5,6 +5,10 @@ import os
 import ssl
 from requests.adapters import HTTPAdapter
 
+# 设置文件名变量
+IP_PORT_FILE = 'v4_ip.txt'
+IP_ONLY_FILE = 'v4_ip_only.txt'
+
 # 自定义 TLS 适配器
 class TLSAdapter(HTTPAdapter):
     def init_poolmanager(self, *args, **kwargs):
@@ -14,7 +18,7 @@ class TLSAdapter(HTTPAdapter):
 
 # 设置目标 URL 列表
 urls = [
-    'https://monitor.gacjie.cn/page/cloudflare/ipv4.html',
+    'https://api.uouin.com/cloudflare.html',
     'https://ip.164746.xyz'
 ]
 
@@ -25,7 +29,7 @@ ip_pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
 ports = [443, 8443, 2053, 2083, 2087, 2096]
 
 # 清理旧文件
-for filename in ['v4_ip.txt', 'v4_ip_only.txt']:
+for filename in [IP_PORT_FILE, IP_ONLY_FILE]:
     if os.path.exists(filename):
         os.remove(filename)
 
@@ -37,23 +41,20 @@ session.mount('https://', TLSAdapter())
 unique_ips = set()
 
 # 写入文件
-with open('v4_ip.txt', 'w') as port_file, open('v4_ip_only.txt', 'w') as ip_file:
+with open(IP_PORT_FILE, 'w') as port_file, open(IP_ONLY_FILE, 'w') as ip_file:
     for url in urls:
         try:
             response = session.get(url, timeout=10)
             response.raise_for_status()
             
-            soup = BeautifulSoup(response.text, 'html.parser')
-            elements = soup.find_all('tr') if url in urls else soup.find_all('li')
-            
-            for element in elements:
-                for ip in re.findall(ip_pattern, element.get_text()):
-                    if ip not in unique_ips:
-                        unique_ips.add(ip)
-                        ip_file.write(ip + '\n')
-                        for port in ports:
-                            port_file.write(f"{ip}:{port}\n")
+            # 直接从响应文本中查找IP地址
+            for ip in re.findall(ip_pattern, response.text):
+                if ip not in unique_ips:
+                    unique_ips.add(ip)
+                    ip_file.write(ip + '\n')
+                    for port in ports:
+                        port_file.write(f"{ip}:{port}\n")
         except Exception:
             continue
 
-print("✅ 所有 IP 地址已保存到 ip.txt 文件中。")
+print(f"✅ 所有 IP 地址已保存到 {IP_PORT_FILE} 和 {IP_ONLY_FILE} 文件中。")
