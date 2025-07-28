@@ -18,7 +18,7 @@ class TLSAdapter(HTTPAdapter):
 
 # 设置目标 URL 列表
 urls = [
-    'https://api.uouin.com/cloudflare.html',
+    # 'https://api.uouin.com/cloudflare.html',
     'https://ip.164746.xyz'
 ]
 
@@ -26,7 +26,8 @@ urls = [
 ip_pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
 
 # 常用 HTTPS 端口列表
-ports = [443, 8443, 2053, 2083, 2087, 2096]
+ports = [443]
+# ports = [443, 8443, 2053, 2083, 2087, 2096]
 
 # 清理旧文件
 for filename in [IP_PORT_FILE, IP_ONLY_FILE]:
