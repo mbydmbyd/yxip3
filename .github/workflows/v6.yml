@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 */6 * * *'   # 每6小时自动运行一次
   workflow_dispatch:         # 允许手动触发
+  push:
+    paths:
+      - 'v6_collect_ips.py'  # 文件变更
 
 jobs:
   update-ip-list:
