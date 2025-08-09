@@ -18,7 +18,7 @@ class TLSAdapter(HTTPAdapter):
 
 # 设置目标 URL 列表
 urls = [
-    'https://api.uouin.com/cloudflare.html',
+#     'https://api.uouin.com/cloudflare.html',
     'https://ip.164746.xyz'
 ]
 
